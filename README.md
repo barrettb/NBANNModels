@@ -1,12 +1,14 @@
 # NBA Spread, Total, and OREB Models
 ---------------------------------------------------------------------------------------
-1
-April 2023 NBA Predictions (Spread, Total, ORebs)
 By: Will Kenerly, Kevin Sullivan, Barrett Buhler, Ghasan Ahmed, Kai White,
 Wesley Lemons
-2
+
+I contributed most of the modelling and the data cleaning process but this work was a result of group project
+
 I. Data
+
 A. Cleaning the Data
+
 To clean up the data, we first loaded up game information for the 2021-22 and 2022-23
 seasons using the nbastatR library. The data was separated by team rather than by game on every
 row and had many variables that we were not interested in. We selected the variables of interest
@@ -15,6 +17,7 @@ individual Home and Away data sets by filtering the locationGame and consequentl
 after. We then renamed the nameTeam variable to whether it was the home or away team and full
 joined by idGame. In the process of joining, we used Mutate() to create additional variables for
 Spread, Total, and OREB.
+
 After loading and cleaning the nbastatR data, we loaded up the “games_excel”, filtered
 for season >= 2021, and then renamed the GAME_ID variable to idGame so that we can full join
 it to the nbastatR data. After doing so, we read in the “games_details.csv” and grouped it by
@@ -28,6 +31,7 @@ earlier by GAME_ID and TEAM_ID. The process was repeated for the away team, and 
 data frames were joined to create a table including game id’s, team id’s average plus minus,
 average field goal percentage, and average 3-point percentage. Finally, we renamed GAME_ID
 to idGame to full join with the final data from nbastatR.
+
 This dataset laid the groundwork for our future models. We opted to present each row
 represented as different games and because of that broke up most of our variables into home and
 away metrics due to the varied performance for home versus away teams. This dataset featured
@@ -35,8 +39,9 @@ every game from the 2021 season to the current week. From here, we added our new
 and outside data listed below. We downloaded further statistics from the nbastatR package and
 other sources to include the simple variables such as blocks and turnovers, to represent the
 number that both teams accumulated for each specific game.
-3
+
 B. New Engineered Variables
+
 1) Rivalry Score
 For our first engineered variable, we attempted to quantify the idea of a rivalry. Rivalries
 are a major part of sports, and are a key reason why fans tune in to certain games. Our hypothesis
@@ -47,9 +52,9 @@ direct impact on our three variables of interest (Spread, Total, and OREB). To q
 we created the following formula with SC standing for “same conference”, SD “same division”,
 and SS “same state” and assigned a rivalry score to all 435 distinct possible NBA matchups (with
 home/away and away/home considered the same):
-𝑅𝑖𝑣𝑎𝑙𝑟𝑦 𝑆𝑐𝑜𝑟𝑒 =
-2(𝑆𝐶) + 3(𝑆𝐷) + 4(𝑆𝑆) + 5(𝑃𝑙𝑎𝑦𝑜𝑓𝑓 𝑠𝑒𝑟𝑖𝑒𝑠 𝑖𝑛 𝑝𝑎𝑠𝑡 10 𝑦𝑒𝑎𝑟𝑠) + 6(𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑁𝐵𝐴 𝐹𝑖𝑛𝑎𝑙𝑠 𝑎𝑔𝑎𝑖𝑛𝑠𝑡 𝑒𝑎𝑐ℎ 𝑜𝑡ℎ𝑒𝑟)
-(𝐷𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑐𝑒 𝑖𝑛 𝑤𝑖𝑛𝑛𝑖𝑛𝑔 %) + (𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑡𝑖𝑚𝑒𝑠 𝑡ℎ𝑒 𝑡𝑤𝑜 𝑡𝑒𝑎𝑚𝑠 ℎ𝑎𝑣𝑒 𝑝𝑙𝑎𝑦𝑒𝑑 ℎ𝑖𝑠𝑡𝑜𝑟𝑖𝑐𝑎𝑙𝑙𝑦)
+
+𝑅𝑖𝑣𝑎𝑙𝑟𝑦 𝑆𝑐𝑜𝑟𝑒 = 2(𝑆𝐶) + 3(𝑆𝐷) + 4(𝑆𝑆) + 5(𝑃𝑙𝑎𝑦𝑜𝑓𝑓 𝑠𝑒𝑟𝑖𝑒𝑠 𝑖𝑛 𝑝𝑎𝑠𝑡 10 𝑦𝑒𝑎𝑟𝑠) + 6(𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑁𝐵𝐴 𝐹𝑖𝑛𝑎𝑙𝑠 𝑎𝑔𝑎𝑖𝑛𝑠𝑡 𝑒𝑎𝑐ℎ 𝑜𝑡ℎ𝑒𝑟)(𝐷𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑐𝑒 𝑖𝑛 𝑤𝑖𝑛𝑛𝑖𝑛𝑔 %) + (𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑡𝑖𝑚𝑒𝑠 𝑡ℎ𝑒 𝑡𝑤𝑜 𝑡𝑒𝑎𝑚𝑠 ℎ𝑎𝑣𝑒 𝑝𝑙𝑎𝑦𝑒𝑑 ℎ𝑖𝑠𝑡𝑜𝑟𝑖𝑐𝑎𝑙𝑙𝑦)
+
 We decided that questions such as whether they are in the same conference, whether they
 are in the same division, whether they are in the same state, whether they have played each other
 in a playoff series during the past 10 years, and how many times the two teams have played each
@@ -64,6 +69,7 @@ the two teams have played each other, as this adds historical depth to the calcu
 penalizes teams who have not played any “meaningful” games historically against each other.
 Lastly, to ensure every pairwise matchup had a rivalry score greater than 0, if none of the
 numerator criteria was met we assigned a numerator of 1.
+
 This formula is admittedly subjective, however, the idea of a rivalry is hard to quantify
 and is subjective in nature. The numerator of our formula features four binary variables and one
 numeric variable that we as a group considered the foundations of any rivalry. We then assigned
@@ -71,9 +77,9 @@ a subjective weight to each variable to quantify the subjective importance of ea
 created a denominator that penalizes teams who either fail to play meaningful games against
 each other or who have a disparity in winning percentage against each other. Overall, we created
 the Rivalry Score variable to attempt to quantify a subjective idea that has a very real presence in
-4
 the way NBA teams play against each other in the hope that it results in stronger models to
 predict Spread, Total, and OREB.
+
 2) Shooting Advantage
 For our second engineered variable, we created a metric that measures whether the home
 or away team had a better shooting performance for each game. The only way to win an NBA
@@ -85,10 +91,11 @@ and a value less than 1 indicates the away team had the advantage. Our group hyp
 whichever team shot the basketball at a higher percentage would have a higher chance of
 winning a game, and in turn would be a useful predictor on our variables of interest, especially
 our Spread and Total variables.
-𝑆ℎ𝑜𝑜𝑡𝑖𝑛𝑔 𝐴𝑑𝑣𝑎𝑛𝑡𝑎𝑔𝑒 =
-𝐹𝑖𝑒𝑙𝑑 𝐺𝑜𝑎𝑙 𝑃𝑒𝑟𝑐𝑒𝑛𝑡𝑎𝑔𝑒 (𝐻𝑜𝑚𝑒)
-𝐹𝑖𝑒𝑙𝑑 𝐺𝑜𝑎𝑙 𝑃𝑒𝑟𝑐𝑒𝑛𝑡𝑎𝑔𝑒 (𝐴𝑤𝑎𝑦)
+
+𝑆ℎ𝑜𝑜𝑡𝑖𝑛𝑔 𝐴𝑑𝑣𝑎𝑛𝑡𝑎𝑔𝑒 = 𝐹𝑖𝑒𝑙𝑑 𝐺𝑜𝑎𝑙 𝑃𝑒𝑟𝑐𝑒𝑛𝑡𝑎𝑔𝑒 (𝐻𝑜𝑚𝑒) * 𝐹𝑖𝑒𝑙𝑑 𝐺𝑜𝑎𝑙 𝑃𝑒𝑟𝑐𝑒𝑛𝑡𝑎𝑔𝑒 (𝐴𝑤𝑎𝑦)
+
 C. Outside Data
+
 In addition to the new variables listed above, as well as the statistics given to us by the
 original “Games” and “Games_Details” packages, we also included some additional, outside
 data to help us construct detailed models and make predictions. Because basketball teams only
@@ -105,18 +112,21 @@ and is prone to blocking a lot of shots may also contribute to a lower overall t
 Another piece of outside data that we included was the number of fast break points
 recorded in the game. In recent years, there has been an overall decrease in offensive rebounds
 league-wide which is largely attributed to the preference of having more players on offense on
-5
 fast breaks due to the high point conversion. Hence, we decided to add the fast break point
 variable.
+
 We also decided to include team power rankings for each season from NBC Sports. We
 believed that the higher ranked teams would have an increased likelihood of winning over lower
 ranked teams which we hypothesized would improve our spread, total, and offensive rebound
 models.
+
 Lastly, data for the calculation of the Rivalry_Score variable was taken from the website
 “landofbasketball.com” which features an in-depth, head to head breakdown of every NBA
 pairwise matchup throughout NBA history.
+
 D. Variable Names
 The variables in our dataset are as follows:
+
 idGame, dateGame, Home, OREB_H, PTS_H, block_H, TO_H, heightH,
 weightH, ageH, Away, OREB_A, PTS_A, block_A, TO_A, heightA, weightA,
 ageA, Spread, Total, OREB, Rivalry_Score, TEAM_ID_H, avg_plus_minus_H,
@@ -124,6 +134,7 @@ FG_PCT_H, FG3_PCT_H, TEAM_ID_A, avg_plus_minus_A, FG_PCT_A,
 FG3_PCT_A, year, Shooting_Advantage, Power_Ranking_H,
 Power_Ranking_A, dreb_H, shots_missed_H, dreb_A, shots_missed_A,
 Fast_Break_H, Fast_Break_A
+
 The variable abbreviations and definitions are below. Variables ending with an _H
 signifies the home team, and variables ending with an _A signify the away team.
 idGame: Unique game ID
@@ -174,6 +185,7 @@ shots missed in game
 Fast_Break: Number of
 fast break points recorded
 in game
+
 E. Dealing with NAs in the Data
 Early in our data cleaning process we found we had some incomplete game data with
 nine rows of our data containing NA values. Since the number was so few we opted to just
@@ -182,6 +194,7 @@ those empty data entries were filled in, so we were able to reintroduce those ga
 Also, while collecting average height and weight data for teams, we encountered one player who
 did not have this information recorded. Since it was just one player we simply removed him from
 the dataset before incorporating these new variables.
+
 F. Multicollinearity and Perfect Predictors
 In dealing with the problem of multicollinearity, many of the points variables such as
 home points and away points could be used to derive either spread or total thus we had to remove
@@ -189,21 +202,27 @@ them from our data while making our models.
 The same also holds true for the offensive rebound models where we removed OREB_A
 and OREB_H from the data set to avoid having a perfectly predicting model with R squared of
 one.
+
 II. Methodology
+
 After our dataset was cleaned we divided the data into training and testing datasets. We
 first set the seed to 538 to make sure that our models were built from the same randomly selected
 data. We decided to randomly allot 80% of the dataset for training and building our models. The
 other 20% of the dataset was designated for testing our models. We had a total of 3454
 observations, with 2763 observations used for training and 691 observations used for testing.
-7
+
 Before we began creating our models, we created histograms for the Spread and Total
 variables to check their distributions and ensure normality.
 Both distributions appear to be normal although the distribution of Total is slightly right
 skewed. Because of this, we did not remove any potential outliers from our data.
+
 A. Spread
+
 Spread is equal to the number of points scored by the home team minus the number of
 points scored by the away team.
+
 Methodology for Spread
+
 In order to select the best model to predict Spread, we trained our models based on 2763
 observations. The remaining test observations were then used to calculate the below mean
 absolute error values. The model with the lowest mean absolute error value was then selected to
@@ -214,13 +233,13 @@ found that the FG_PCT variables have a correlation of .78. After this basic data
 decided to emphasize shooting variables in constructing our predictors and devised our shooting
 variable from this. The significance of shooting percentages was also confirmed in the summary
 tables of all of our models.
+
 One model we attempted to create for predicting Spread was a K-Nearest Neighbor
 regression model (KNN). Prior to working with the dataset we first scaled the data since KNN is
 a distance based algorithm. Once the data was split into test and train data we looped through 20
 different k values to find the optimal k value for our dataset using the knn.reg() function from the
 FNN package in R and by calculating the smallest mean absolute error for the 20 k values. From
 this model, we found the optimal KNN regression model to have a k = 1 and a mean absolute
-8
 error of 2.03488. The mean absolute error for this model was larger than most of the other
 models we used to predict Spread so we did not consider this model for our predictions.
 Another technique we employed for model creation was linear regression. We began with
@@ -232,6 +251,7 @@ the baseline linear model but raised to both the first and second powers. We the
 backwards selection method to narrow down our predictors. Each of these models were created
 using the training data mentioned above and then evaluated via the mean absolute error created
 when the models were used to predict Spread in our test data.
+
 Our model that gave the lowest mean absolute error for Spread however, was the deep
 learning neural network linear regression we created using Tensorflow. As mentioned above, we
 broke eighty percent of our dataset in to our training data and the rest into our test data. Next, we
@@ -241,11 +261,13 @@ using Keras preprocessing layers to normalize our data. Next, we added a dense l
 linear activation function to produce our predicted spread values. We used the Adam Optimizer
 and set our loss function to mean absolute error when we compiled the model and set our
 learning rate equal to .001.
+
 Next, we fit our model to the training data using an epoch size of 220 and a batch size
 equal to 32. Evaluating our model from our test data, we ended up with a mean absolute error of
 1.22395 which ended up being the lowest out of our Spread models. We also ended up with an
 adjusted R squared of .987 in our final model which was identical to our baseline and backwards
 linear models for spread.
+
 Spread Model MAE
 Baseline Linear 1.25859
 Backwards Selection Linear 1.25857
@@ -253,13 +275,16 @@ Baseline Polynomial 1.24982
 Backwards Selection Polynomial 1.24985
 K-Nearest Neighbors 2.03488
 Neural Network 1.22395
-9
+
 Best Model for Spread
 The Spread model which we found to produce the lowest MAE was the deep learning
 neural network linear regression. This model produced a mean absolute error of 1.22395 when
 used on our testing data. Our Spread model training summary is as follows:
+
 B. Total
+
 Methodology for Total
+
 To be exhaustive in our model creation efforts, we created similar linear and polynomial
 models to the ones described above in the Spread section. The same predictors were used as
 above (all possible aside from idGame, dateGame, Spread, TEAM_ID_A, TEAM_ID_H, Away,
@@ -272,9 +297,9 @@ was split into test and train data, we looped through 20 different k values to f
 value for our dataset using the knn.reg() function from the FNN package in R and by calculating
 for the smallest mean absolute error for the 20 k values. From this loop we found the optimal
 KNN to regression model to have a k=1 and a mean absolute error of 7.94477. This mean
-10
 absolute error for this model was larger than the most of the other models we used to predict
 total, so we did not consider this model for our predictions.
+
 Additionally, since Total is an array of positive variables that can be seen as random and
 independent, we wanted to run a Poisson regression. Poisson regressions models assume that
 error follows a Poisson distribution rather than a normal curve, so we figured it could be
@@ -285,12 +310,14 @@ calculated an mean absolute error of 9.48972. We also ran a Quasi-Poisson regres
 check that our assumption of constant variance equaling the mean didn’t negatively impact our
 result. Our mean absolute error for the Quasi-Poisson was identical, and thus we decided to scrap
 it and assume very minute differences.
+
 Our model that gave the lowest mean absolute error for total was using the same deep
 learning neural network linear regression we created using Tensorflow for spread. The procedure
 remains nearly identical but instead of using Spread as our explanatory we exchanged it with
 Total. We started off breaking eighty percent of our dataset in to our training data and the rest for
 our test data. Next, we split our training and test data into features and labels to isolate our
 explanatory and predictor variables.
+
 Due to different metrics in our predictor variables, we added a normalization layer using
 Keras preprocessing layers to normalize our data. Next, we added a dense layer with a linear
 activation function to produce our predicted Total values. In order to correct for the increased
@@ -298,6 +325,7 @@ standard deviation in our total model we adjusted the learning rate to 0.01. Nex
 model to the training data using an epoch size of 300 and a batch size equal to 32. Evaluating our
 model from our test data, we ended up with a mean absolute error of 7.58238 which also ended
 up being our lowest mean absolute error for our total models as well as an R squared of .7714.
+
 Total Model MAE
 Baseline Linear 7.76662
 Backwards Selection Linear 7.78282
@@ -306,13 +334,16 @@ Backwards Selection Polynomial 7.86856
 K-Nearest Neighbors 7.94477
 Poisson 9.48972
 Neural Network 7.58238
-11
+
 Best Model for Total
 The Total model which we found to produce the lowest MAE was the deep learning
 neural network linear regression. This model produced a mean absolute error of 7.58238 when
 used on our testing data. Our Total model training summary is as follows:
+
 C. OREB
+
 Methodology for OREB
+
 OREB is an array of positive variables that can be seen as random and independent, so we
 also ran a Poisson regression. We built the model using all the variables except: idGame,
 dateGame, Spread, TEAM_ID_A, TEAM_ID_H, Away, Home, OREB_H, and OREB_A. We
@@ -326,13 +357,14 @@ well as OREB_H and OREB_A due to the fact that they would be perfect predictors.
 created these four models with the training data and then evaluated them based on the mean
 absolute errors we calculated with the test data. Similar to the Spread and Total, we also created a
 deep learning neural network linear regression and found a mean absolute error of 2.46655
-12
+
 One model we once again attempted to create for predicting OREB was KNN. Similar to
 the previous KNN models we used the scaled dataset to model for OREB. We followed a similar
 loop as the previous models by looping through 20 values. From this loop we found the optimal
 KNN to regression model to have a k=1 and a mean absolute error of 2.81686. This mean
 absolute error for this model was slightly larger than some of the other models we used to predict
 OREB so we did not consider this model for our predictions.
+
 OREB Model MAE
 Baseline Linear 2.42870
 Backwards Selection Linear 2.42836
@@ -341,7 +373,9 @@ Backwards Selection Polynomial 2.39375
 K-Nearest Neighbors 2.81686
 Poisson 3.55871
 Neural Network 2.46655
+
 Best Model for OREB
+
 The OREB model which we found to produce the lowest MAE was the backwards
 selected stepwise polynomial regression model. This model produced a mean absolute error of
 2.39375 when used on our testing data. Our OREB model is as follows:
@@ -403,16 +437,18 @@ Signif. codes: 0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 
 Residual standard error: 3.094 on 2716 degrees of freedom
 Multiple R-squared: 0.6765, Adjusted R-squared: 0.671
 F-statistic: 123.5 on 46 and 2716 DF, p-value: < 2.2e-16
+
 Making Predictions
 In order to make our predictions, we initially tried averaging each of our predictors for
 every home/away team matchup possible in the current season but quickly realized not every
-14
+
 home/away matchup had occurred to that point. Instead, we averaged all predictor values for
 each team when they were away and at home and then merged those with the prediction dataset
 which included the matchups we were predicting in order to then run our predictions. We then
 used our best models to create our predictions. Once those predictions were made all the average
 data was removed from the prediction file to be in the correct format for submission.
-15
+
+
 References and Data Sources
 https://www.teamrankings.com/nba/ - This is the site we used to find fast break points for
 each NBA team during the 2021-2023 seasons.
